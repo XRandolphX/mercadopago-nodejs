@@ -41,6 +41,14 @@ export const createPayment = async (req: Request, res: Response) => {
           email: payer_email,
         },
         external_reference: "order_" + Date.now(),
+        // return URLs
+        back_urls: {
+          // deep links Android/iOS
+          success: "elegantcommerce://congrats",
+          failure: "elegantcommerce://failure",
+          pending: "elegantcommerce://pending",
+        },
+        auto_return: "approved", // redirigir al usuario a la URL de éxito después de que se complete el pago
       },
     });
     // Respondemos con el id y el link de pago (init_point)
