@@ -35,8 +35,9 @@ export const createPayment: RequestHandler = async (
       init_point: preference.init_point,
       id: preference.id,
     });
-  } catch (error: any) {
-    if (error.message.includes("no coincide")) {
+  } catch (error: unknown) {
+    if (error instanceof Error && error.message.includes("no coincide")) {
+      console.error("Validación de precio fallida: ", error.message);
       res.status(400).json({
         error: "Precio inválido",
         message: error.message,
@@ -44,11 +45,13 @@ export const createPayment: RequestHandler = async (
       return;
     }
 
-    console.error("Error al crear preferencia de pago: ", error);
-
+    console.error(
+      "Error al crear preferencia de pago: ",
+      error instanceof Error ? error.message : error
+    );
     res.status(500).json({
       error: "Error al procesar el pago",
-      message: error.message,
+      message: error instanceof Error ? error.message : String(error),
     });
   }
 };
