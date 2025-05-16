@@ -41,6 +41,7 @@ export const createPayment: RequestHandler = async (
         error: "Precio inválido",
         message: error.message,
       });
+      return;
     }
 
     console.error("Error al crear preferencia de pago: ", error);
