@@ -1,6 +1,5 @@
 import { Preference } from "mercadopago";
 import { mpClient } from "../config/mercadopago";
-import { isTemplateExpression } from "typescript";
 
 // Interfaces para representar la estructura de datos de la app Android
 interface Product {
@@ -14,14 +13,14 @@ interface Product {
 interface CartProduct {
   product: Product;
   quantity: number;
-  selectedColor?: number; // Cambiado a number según la definición en Android
+  selectedColor?: number; 
   selectedSize?: string;
 }
 
 interface Address {
   fullName: string;
-  location: string; // En tu app Android se llama location
-  addressBill: string; // En tu app Android se llama addressBill
+  location: string; 
+  addressBill: string; 
   phone: string;
 }
 
