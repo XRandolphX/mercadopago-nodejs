@@ -1,15 +1,31 @@
-// console.log("Hello via Bun!");
-import "dotenv/config";
+// Cargar dotenv de forma segura (reemplaza la línea anterior)
+import dotenv from "dotenv";
+dotenv.config();
+
+// Importar express y las rutas
 import express from "express";
 import paymentRoutes from "./routes/payment.routes";
 
+if (process.env.NODE_ENV !== "production") {
+  console.log("MP_ACCESS_TOKEN:", process.env.MP_ACCESS_TOKEN);
+  console.log("PORT:", process.env.PORT);
+}
+
+// Validar que el Access Token esté definido
+if (!process.env.MP_ACCESS_TOKEN) {
+  throw new Error("MP_ACCESS_TOKEN no está definido en el archivo .env");
+}
+
+// Definir el puerto
+const port = parseInt(process.env.PORT || "3000", 10);
+
+// Crear la app
 const app = express();
-const port = parseInt(process.env.port || "3000", 10);
 
 // Middleware para leer JSON
 app.use(express.json());
 
-// Monstamos las rutas bajo /api/payments
+// Definir las rutas
 app.use("/api/payments", paymentRoutes);
 
 // Iniciar servidor

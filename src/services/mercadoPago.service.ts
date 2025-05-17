@@ -13,14 +13,14 @@ interface Product {
 interface CartProduct {
   product: Product;
   quantity: number;
-  selectedColor?: number; 
+  selectedColor?: number;
   selectedSize?: string;
 }
 
 interface Address {
   fullName: string;
-  location: string; 
-  addressBill: string; 
+  location: string;
+  addressBill: string;
   phone: string;
 }
 
@@ -29,6 +29,11 @@ interface PaymentRequest {
   products: CartProduct[];
   totalPrice: number;
   address: Address;
+  userEmail?: string;
+}
+
+function roundToTwoDecimals(num: number): number {
+  return Math.round(num * 100) / 100;
 }
 
 const preferenceApi = new Preference(mpClient);
@@ -43,17 +48,18 @@ export const createMercadoPagoPreference = async (
 
   // Transformamos los datos de la app al formato que espera MercadoPago
   const mercadoPagoItems = paymentRequest.products.map((cartProduct, index) => {
-    const actualPrice = cartProduct.product.offerPercentage
-      ? cartProduct.product.price *
-        (1 - cartProduct.product.offerPercentage / 100)
-      : cartProduct.product.price;
+    const basePrice = cartProduct.product.price;
+    const offerPercentage = cartProduct.product.offerPercentage || 0;
+
+    const discountedPrice = basePrice * (1 - offerPercentage);
+    const actualPrice = roundToTwoDecimals(discountedPrice);
 
     return {
       id: cartProduct.product.id || `item_${Date.now()}_${index}`,
       title: cartProduct.product.name,
       quantity: cartProduct.quantity,
       unit_price: actualPrice,
-      currency_id: "PEN", // Moneda peruana (soles)
+      currency_id: "PEN",
       picture_url: cartProduct.product.images[0] || "",
     };
   });
@@ -74,7 +80,7 @@ export const createMercadoPagoPreference = async (
   const preferenceData = {
     items: mercadoPagoItems,
     payer: {
-      email: "cliente@elegantcommerce.com", // Podrías pasar este dato desde la app
+      email: paymentRequest.userEmail || "cliente@elegantcommerce.com",
       name: paymentRequest.address.fullName,
       phone: {
         number: paymentRequest.address.phone,
@@ -86,9 +92,9 @@ export const createMercadoPagoPreference = async (
     },
     external_reference: "order_" + Date.now(),
     back_urls: {
-      success: "elegantcommerce://payment/success",
-      failure: "elegantcommerce://payment/failure",
-      pending: "elegantcommerce://payment/pending",
+      success: "https://payment-pages-five.vercel.app/payment/success.html",
+      failure: "https://payment-pages-five.vercel.app/payment/failure.html",
+      pending: "https://payment-pages-five.vercel.app/payment/pending.html",
     },
     auto_return: "approved",
     notification_url:
