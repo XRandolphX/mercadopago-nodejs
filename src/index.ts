@@ -19,8 +19,8 @@ if (!process.env.MP_ACCESS_TOKEN) {
   throw new Error("MP_ACCESS_TOKEN no está definido en el entorno");
 }
 
-// Definir el puerto, Railway lo gestiona, usa 3000 por defecto en local
-const port = parseInt(process.env.PORT || "3000", 10);
+// Definir el puerto, Railway lo gestiona, usa 8080 por defecto en local
+const port = parseInt(process.env.PORT || "8080", 10);
 
 // Crear la app
 const app = express();
