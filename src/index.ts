@@ -1,4 +1,4 @@
-// Cargar dotenv solo en desarrollo local
+// Solo cargar dotenv si NO está en producción
 if (process.env.NODE_ENV !== "production") {
   console.log("Cargando variables desde .env");
   require("dotenv").config();
@@ -8,27 +8,27 @@ if (process.env.NODE_ENV !== "production") {
 import express from "express";
 import paymentRoutes from "./routes/payment.routes";
 
-// Solo loguear en desarrollo
+// Mostrar variables solo en desarrollo
 if (process.env.NODE_ENV !== "production") {
   console.log("MP_ACCESS_TOKEN:", process.env.MP_ACCESS_TOKEN);
   console.log("PORT:", process.env.PORT);
 }
 
-// Validar que el Access Token esté definido
+// Validar que MP_ACCESS_TOKEN esté definido (tanto en Railway como local)
 if (!process.env.MP_ACCESS_TOKEN) {
   throw new Error("MP_ACCESS_TOKEN no está definido en el entorno");
 }
 
-// Definir el puerto
+// Definir el puerto, Railway lo gestiona, usa 3000 por defecto en local
 const port = parseInt(process.env.PORT || "3000", 10);
 
 // Crear la app
 const app = express();
 
-// Middleware para leer JSON
+// Middleware para JSON
 app.use(express.json());
 
-// Definir las rutas
+// Definir rutas
 app.use("/api/payments", paymentRoutes);
 
 // Iniciar servidor
