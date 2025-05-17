@@ -31,6 +31,11 @@ app.use(express.json());
 // Definir rutas
 app.use("/api/payments", paymentRoutes);
 
+// Ruta raíz para verificar que el servidor está funcionando
+app.get("/", (_req, res) => {
+  res.send("Servidor funcionando 💻");
+});
+
 // Iniciar servidor
 app.listen(port, "0.0.0.0", () => {
   console.log(`Servidor escuchando en http://0.0.0.0:${port}`);
