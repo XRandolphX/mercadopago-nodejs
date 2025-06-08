@@ -65,7 +65,6 @@ export const mercadoPagoWebhookHandler: RequestHandler = async (req, res) => {
   if (event.type === "payment" && event.data?.id) {
     try {
       const payment = await mpPayment.get({ id: event.data.id });
-
       console.log("💰 Detalle del pago:", JSON.stringify(payment, null, 2));
 
       if (payment.status === "approved") {
@@ -75,8 +74,8 @@ export const mercadoPagoWebhookHandler: RequestHandler = async (req, res) => {
 
       res.sendStatus(200);
     } catch (error) {
-      console.error("❌ Error al obtener detalle del pago:", error);
-      res.sendStatus(500);
+      console.error("❌ Error en el webhook: ", JSON.stringify(error, null, 2));
+      res.status(500).send("Error procesando el pago");
     }
   } else {
     res.sendStatus(200);
