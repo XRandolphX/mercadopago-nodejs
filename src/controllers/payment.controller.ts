@@ -52,7 +52,7 @@ export const createPayment: RequestHandler = async (
     );
     res.status(500).json({
       error: "Error al procesar el pago",
-      message: error instanceof Error ? error.message : String(error),
+      message: JSON.stringify(error, null, 2),
     });
   }
 };
