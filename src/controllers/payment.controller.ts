@@ -1,5 +1,6 @@
 import type { Request, Response, RequestHandler } from "express";
 import { createMercadoPagoPreference } from "../services/mercadoPago.service";
+import { mpClient, mpPayment } from "../config/mercadopago";
 
 // Controlador de prueba para probar la ruta GET
 export const helloPayment = (_req: Request, res: Response) => {
@@ -53,5 +54,31 @@ export const createPayment: RequestHandler = async (
       error: "Error al procesar el pago",
       message: error instanceof Error ? error.message : String(error),
     });
+  }
+};
+
+export const mercadoPagoWebhookHandler: RequestHandler = async (req, res) => {
+  const event = req.body;
+
+  console.log("📩 Webhook recibido:", JSON.stringify(event, null, 2));
+
+  if (event.type === "payment" && event.data?.id) {
+    try {
+      const payment = await mpPayment.get({ id: event.data.id });
+
+      console.log("💰 Detalle del pago:", JSON.stringify(payment, null, 2));
+
+      if (payment.status === "approved") {
+        console.log("✅ Pago aprobado con ID:", payment.id);
+        // I can save later to Firestore
+      }
+
+      res.sendStatus(200);
+    } catch (error) {
+      console.error("❌ Error al obtener detalle del pago:", error);
+      res.sendStatus(500);
+    }
+  } else {
+    res.sendStatus(200);
   }
 };
