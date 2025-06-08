@@ -63,8 +63,10 @@ export const mercadoPagoWebhookHandler: RequestHandler = async (req, res) => {
   console.log("📩 Webhook recibido:", JSON.stringify(event, null, 2));
 
   if (event.type === "payment" && event.data?.id) {
+    const paymentId = event.data.id;
+
     try {
-      const payment = await mpPayment.get({ id: event.data.id });
+      const payment = await mpPayment.get({ id: paymentId });
       console.log("💰 Detalle del pago:", JSON.stringify(payment, null, 2));
 
       if (payment.status === "approved") {
@@ -72,12 +74,22 @@ export const mercadoPagoWebhookHandler: RequestHandler = async (req, res) => {
         // I can save later to Firestore
       }
 
-      res.sendStatus(200);
-    } catch (error) {
-      console.error("❌ Error en el webhook: ", JSON.stringify(error, null, 2));
-      res.status(500).send("Error procesando el pago");
+      res.sendStatus(200).send("Webhook processed successfully");
+    } catch (error: any) {
+      const msg =
+        typeof error?.message === "string" ? error.message : "Unknown error";
+
+      if (error?.status === 404 || msg.includes("not_found")) {
+        console.warn(`⚠️ ID de pago no encontrado: ${paymentId}`);
+        res.status(200).send("Payment ID not found. Ignored.");
+        return;
+      }
+
+      console.error("❌ Error inesperado procesando el pago:", msg);
+      res.status(500).send("Unexpected error processing the payment.");
+      return;
     }
   } else {
-    res.sendStatus(200);
+    res.sendStatus(200).send("Ignored. Not a payment event.");
   }
 };
